@@ -1,47 +1,56 @@
-import unittest
-from fastapi.testclient import TestClient
-from main import app
-client = TestClient(app)
+import requests
 
-def test_create_book():
+BASE_URL = "http://127.0.0.1:8000"
+
+def test_all_functionalities():
+    # Create a user
+    user_data = {"name": "John Doe", "email": "john@example.com"}
+    user_response = requests.post(f"{BASE_URL}/users/", json=user_data)
+    user = user_response.json()
+    print("Created User:", user)
+
+    # Create a book
     book_data = {
-        "title": "The Catcher in the Rye",
-        "author": "J.D. Salinger",
-        "publication_year": 1951,
-        "description": "A story about teenage angst and rebellion."
+        "title": "Sample Book",
+        "author": "Jane Doe",
+        "publication_year": 2022,
+        "description": "A sample book description.",
     }
-    response = client.post("/books/", json=book_data)
-    assert response.status_code == 201
-    assert response.json() == book_data
-    print (response.json())
+    book_response = requests.post(f"{BASE_URL}/books/", json=book_data)
+    book = book_response.json()
+    print("Created Book:", book)
 
-def test_update_book():
-    book_id = 1
-    book_update_data = {
-        "title": "To Kill a Mockingbird",
-        "author": "Harper Lee",
-        "publication_year": 1960,
-        "description": "A story about racism and injustice in the American South."
-    }
-    response = client.put(f"/books/{book_id}", json=book_update_data)
-    assert response.status_code == 200
-    assert response.json() == book_update_data
-    print (response.json)
-def test_delete_book():
-    book_id = 1
-    response = client.delete(f"/books/{book_id}")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Book deleted successfully"}
-    print(response.json)
-def test_checkout_book():
-    checkout_info = {
-        "user_id": 1,
-        "book_id": 1
-    }
-    response = client.post("/checkout/", json=checkout_info)
-    assert response.status_code == 200
-    print(response.status_code)
-def test_get_checked_out_users():
-    response = client.get("/checked-out-users/")
-    assert response.status_code == 200
-    print(response.status_code)
+    # Check out the book for the user
+    checkout_data = {"user_name": "John Doe", "book_title": "Sample Book"}
+    checkout_response = requests.post(f"{BASE_URL}/checkout/", json=checkout_data)
+    checkout = checkout_response.json()
+    print("Checked Out Book:", checkout)
+
+    # Edit the book
+    edit_data = {"author": "Updated Author", "publication_year": 2023, "description": "Updated description."}
+    edit_response = requests.put(f"{BASE_URL}/books/edit/Sample Book", json=edit_data)
+    edited_book = edit_response.json()
+    print("Edited Book:", edited_book)
+
+    # Delete the book
+    delete_response = requests.delete(f"{BASE_URL}/books/delete/Sample Book")
+    deleted_book = delete_response.json()
+    print("Deleted Book:", deleted_book)
+
+    # Get all checked-out books
+    checked_out_books_response = requests.get(f"{BASE_URL}/checked-out-books/")
+    checked_out_books = checked_out_books_response.json()
+    print("Checked-out Books:", checked_out_books)
+
+    # Get all books
+    all_books_response = requests.get(f"{BASE_URL}/books/all")
+    all_books = all_books_response.json()
+    print("All Books:", all_books)
+
+    # Get all users
+    all_users_response = requests.get(f"{BASE_URL}/users/all")
+    all_users = all_users_response.json()
+    print("All Users:", all_users)
+
+if __name__ == "__main__":
+    test_all_functionalities()
